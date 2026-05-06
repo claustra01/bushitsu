@@ -798,6 +798,19 @@ For each response:
 
 Do not use SQL `json_each` for the initial implementation unless necessary.
 
+Summary UI should lightly highlight strong candidate slots:
+
+```text
+all participants can attend:
+  yes count equals total participant count
+
+all but one participant can attend:
+  yes count equals total participant count minus one
+  only applies when there are at least 2 participants
+```
+
+Do not rely on color alone; include a short text label such as `全員OK` or `あと1人`.
+
 ## 18. Frontend Requirements
 
 ### 18.1 Pages
@@ -869,7 +882,13 @@ Implement:
 
 ### 18.4 Mobile Support
 
-The timetable grid may be horizontally scrollable.
+The desktop timetable grid may be horizontally scrollable on narrow intermediate viewports.
+
+On mobile, keep the grid readable with stable cell sizes, touch-friendly controls, and a sticky row-header column where practical.
+
+For availability input on mobile, do not require horizontal scrolling. Use a vertical layout grouped by date so a participant can complete the form with vertical scrolling only.
+
+For read-only views such as summary and participant response status, prefer compact mobile-specific layouts that fit the viewport width. Horizontal scrolling may be used on larger screens but should not be the primary mobile interaction.
 
 Do not sacrifice data clarity for layout compactness.
 

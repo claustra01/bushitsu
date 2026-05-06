@@ -9,6 +9,8 @@ export type SummaryCell = {
 
 export type Summary = Record<string, SummaryCell>;
 
+export type AvailabilityHighlight = "all" | "almost" | "none";
+
 export type SummaryResponseInput = {
   answers: Record<string, unknown> | AnswersMap;
 };
@@ -59,4 +61,20 @@ export function countAnswers(enabledSlotIds: readonly string[], answers: Answers
   }
 
   return counts;
+}
+
+export function getAvailabilityHighlight(cell: SummaryCell, totalParticipants: number): AvailabilityHighlight {
+  if (totalParticipants <= 0) {
+    return "none";
+  }
+
+  if (cell.yes === totalParticipants) {
+    return "all";
+  }
+
+  if (totalParticipants >= 2 && cell.yes === totalParticipants - 1) {
+    return "almost";
+  }
+
+  return "none";
 }

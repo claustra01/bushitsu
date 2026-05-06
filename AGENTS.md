@@ -299,9 +299,11 @@ Required pages:
 
 The timetable grid should support a selected date range up to 14 days, with 1限 through 7限 plus 夜間.
 
-The grid may scroll horizontally on mobile.
+The desktop-style grid may scroll horizontally on narrow intermediate viewports.
 
 Use one-click controls for availability: each slot should expose ○ / △ / × buttons directly rather than a dropdown.
+
+For availability input on mobile, do not require horizontal scrolling. Use a vertical, date-grouped layout. For read-only summary and response status, prefer compact viewport-width layouts over horizontal table scrolling.
 
 Do not rely on color alone to represent status.
 
@@ -332,6 +334,17 @@ type SummaryCell = {
 ```
 
 Add or maintain tests for summary behavior.
+
+The summary UI should make strong candidate slots slightly stand out:
+
+```text
+全員OK:
+  yes count equals total participant count
+
+あと1人:
+  yes count equals total participant count minus one
+  only when there are at least 2 participants
+```
 
 ## Testing Expectations
 

@@ -16,6 +16,10 @@
   --accent: #b06912;
   --danger: #a3343a;
   --focus: #2563eb;
+  --all-ok-bg: #dff6e8;
+  --all-ok-border: #57b87b;
+  --almost-ok-bg: #fff2c9;
+  --almost-ok-border: #d39a22;
 }
 
 * {
@@ -28,6 +32,7 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
+  -webkit-text-size-adjust: 100%;
 }
 
 a {
@@ -273,9 +278,18 @@ select {
 
 .grid-scroll,
 .table-wrap {
+  max-width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
   border: 1px solid var(--line);
   border-radius: 8px;
+}
+
+.schedule-mobile-list,
+.summary-mobile-list,
+.response-card-list {
+  display: none;
 }
 
 .schedule-table,
@@ -322,6 +336,26 @@ select {
 .response-table th {
   background: #eef2ee;
   text-align: left;
+}
+
+.schedule-table thead th,
+.summary-table thead th,
+.schedule-table tbody th,
+.summary-table tbody th {
+  white-space: nowrap;
+}
+
+.schedule-table th:first-child,
+.summary-table th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  box-shadow: 1px 0 0 var(--line);
+}
+
+.schedule-table thead th:first-child,
+.summary-table thead th:first-child {
+  z-index: 3;
 }
 
 .schedule-table td {
@@ -373,6 +407,30 @@ select {
   line-height: 1.35;
 }
 
+.summary-highlight {
+  border-left: 3px solid transparent;
+}
+
+.summary-highlight-all {
+  background: var(--all-ok-bg);
+  border-left-color: var(--all-ok-border);
+}
+
+.summary-highlight-almost {
+  background: var(--almost-ok-bg);
+  border-left-color: var(--almost-ok-border);
+}
+
+.summary-badge {
+  width: fit-content;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.78);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .compact-counts {
   grid-template-columns: repeat(4, max-content);
   gap: 8px;
@@ -380,6 +438,77 @@ select {
 
 .table-action {
   font-weight: 700;
+}
+
+.schedule-mobile-day,
+.summary-mobile-day,
+.response-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.schedule-mobile-day h3,
+.summary-mobile-day h3,
+.response-card h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.schedule-mobile-slots,
+.summary-mobile-slots {
+  display: grid;
+}
+
+.schedule-mobile-slot,
+.summary-mobile-slot {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.schedule-mobile-slot {
+  grid-template-columns: minmax(54px, 0.35fr) minmax(0, 1fr);
+  align-items: center;
+}
+
+.schedule-mobile-slot-label,
+.summary-mobile-period {
+  font-weight: 700;
+}
+
+.summary-mobile-slot-head,
+.response-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.summary-mobile-counts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  font-size: 0.86rem;
+}
+
+.response-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.response-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.response-card-date {
+  color: var(--muted);
+  font-size: 0.82rem;
 }
 
 .disabled-cell {
@@ -426,10 +555,19 @@ select {
 }
 
 @media (max-width: 720px) {
+  .topbar {
+    padding: 12px 14px;
+  }
+
   .topbar,
   .split-heading {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .page-section {
+    width: min(100% - 20px, 1120px);
+    padding: 24px 0 40px;
   }
 
   .intro h1,
@@ -437,15 +575,94 @@ select {
     font-size: 1.6rem;
   }
 
+  .section-heading {
+    margin-bottom: 14px;
+  }
+
   .surface {
-    padding: 16px;
+    margin-top: 16px;
+    padding: 12px;
+    border-radius: 6px;
   }
 
   .form-grid {
     grid-template-columns: 1fr;
   }
 
+  .actions .button {
+    flex: 1 1 140px;
+  }
+
+  .grid-scroll,
+  .table-wrap {
+    border-radius: 6px;
+  }
+
+  .input-grid-desktop,
+  .summary-grid-desktop,
+  .response-list-desktop {
+    display: none;
+  }
+
+  .schedule-mobile-list,
+  .summary-mobile-list,
+  .response-card-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .schedule-mobile-day h3,
+  .summary-mobile-day h3 {
+    padding: 12px;
+    background: #eef2ee;
+    border-radius: 6px 6px 0 0;
+  }
+
+  .schedule-mobile-slot {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+
+  .status-button {
+    min-height: 42px;
+    padding: 4px;
+    font-size: 1rem;
+  }
+
+  .summary-mobile-slot {
+    padding: 10px 12px;
+  }
+
+  .summary-mobile-counts,
   .compact-counts {
+    grid-template-columns: repeat(2, max-content);
+  }
+
+  .response-card .compact-counts {
+    grid-template-columns: repeat(4, max-content);
+  }
+}
+
+@media (max-width: 420px) {
+  .topnav {
+    gap: 8px;
+  }
+
+  .intro h1,
+  .section-heading h1 {
+    font-size: 1.42rem;
+  }
+
+  .schedule-mobile-slot {
+    grid-template-columns: 50px minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .status-buttons {
+    gap: 3px;
+  }
+
+  .response-card .compact-counts,
+  .summary-mobile-counts {
     grid-template-columns: repeat(2, max-content);
   }
 }
