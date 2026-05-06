@@ -27,7 +27,6 @@ export type ResponseRow = {
   name: string;
   comment: string | null;
   answers_json: string;
-  edit_token_hash: string;
   version: number;
   updated_at: string;
 };
@@ -56,7 +55,7 @@ export async function findResponse(
 ): Promise<ResponseRow | null> {
   return db
     .prepare(
-      `SELECT id, name, comment, answers_json, edit_token_hash, version, updated_at
+      `SELECT id, name, comment, answers_json, version, updated_at
        FROM responses
        WHERE poll_slug = ?
          AND id = ?`
@@ -68,7 +67,7 @@ export async function findResponse(
 export async function listResponses(db: D1Database, slug: string): Promise<ResponseRow[]> {
   const result = await db
     .prepare(
-      `SELECT id, name, comment, answers_json, edit_token_hash, version, updated_at
+      `SELECT id, name, comment, answers_json, version, updated_at
        FROM responses
        WHERE poll_slug = ?
        ORDER BY updated_at DESC`
@@ -156,16 +155,6 @@ export async function touchPoll(db: D1Database, slug: string): Promise<void> {
     )
     .bind(slug)
     .run();
-}
-
-export async function assertEditToken(
-  env: Env,
-  response: Pick<ResponseRow, "edit_token_hash">,
-  rawToken: string
-): Promise<void> {
-  assertApi(rawToken.length > 0, 403, "INVALID_TOKEN", "編集トークンが正しくありません");
-  const tokenHash = await hashToken(rawToken, requireTokenPepper(env));
-  assertApi(tokenHash === response.edit_token_hash, 403, "INVALID_TOKEN", "編集トークンが正しくありません");
 }
 
 export async function assertAdminToken(env: Env, poll: Pick<PollRow, "admin_token_hash">, rawToken: string): Promise<void> {

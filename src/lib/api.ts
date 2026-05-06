@@ -34,7 +34,6 @@ export type CreatePollPayload = {
 
 export type CreateResponsePayload = {
   response: ResponseDto;
-  editPath: string;
 };
 
 export type UpdateResponsePayload = {
@@ -103,12 +102,10 @@ export function createResponse(
 export function updateResponse(
   slug: string,
   responseId: string,
-  token: string,
   input: { name: string; comment: string; answers: AnswersMap; version: number }
 ): Promise<UpdateResponsePayload> {
-  const params = new URLSearchParams({ token });
   return requestJson<UpdateResponsePayload>(
-    `/api/polls/${encodeURIComponent(slug)}/responses/${encodeURIComponent(responseId)}?${params.toString()}`,
+    `/api/polls/${encodeURIComponent(slug)}/responses/${encodeURIComponent(responseId)}`,
     {
       method: "PUT",
       body: JSON.stringify(input)
@@ -116,10 +113,9 @@ export function updateResponse(
   );
 }
 
-export function deleteResponse(slug: string, responseId: string, token: string): Promise<void> {
-  const params = new URLSearchParams({ token });
+export function deleteResponse(slug: string, responseId: string): Promise<void> {
   return requestJson<void>(
-    `/api/polls/${encodeURIComponent(slug)}/responses/${encodeURIComponent(responseId)}?${params.toString()}`,
+    `/api/polls/${encodeURIComponent(slug)}/responses/${encodeURIComponent(responseId)}`,
     {
       method: "DELETE"
     }

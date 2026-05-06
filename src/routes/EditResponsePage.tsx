@@ -13,7 +13,6 @@ import type { ResponseDto } from "../lib/schema";
 type EditResponsePageProps = {
   slug: string;
   responseId: string;
-  token: string;
 };
 
 function errorMessage(error: unknown): string {
@@ -23,7 +22,7 @@ function errorMessage(error: unknown): string {
   return "通信に失敗しました";
 }
 
-export default function EditResponsePage({ slug, responseId, token }: EditResponsePageProps) {
+export default function EditResponsePage({ slug, responseId }: EditResponsePageProps) {
   const [payload, setPayload] = useState<PollReadPayload | null>(null);
   const [response, setResponse] = useState<ResponseDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,7 +70,7 @@ export default function EditResponsePage({ slug, responseId, token }: EditRespon
     setNotice("");
 
     try {
-      const updated = await updateResponse(slug, responseId, token, {
+      const updated = await updateResponse(slug, responseId, {
         ...values,
         version: response.version
       });
@@ -90,7 +89,7 @@ export default function EditResponsePage({ slug, responseId, token }: EditRespon
     setNotice("");
 
     try {
-      await deleteResponse(slug, responseId, token);
+      await deleteResponse(slug, responseId);
       navigate(`/p/${slug}`);
     } catch (caught) {
       setError(errorMessage(caught));
@@ -138,7 +137,6 @@ export default function EditResponsePage({ slug, responseId, token }: EditRespon
         </span>
       </div>
 
-      {!token && <p className="message message-error">編集トークンが URL に含まれていません。</p>}
       {notice && <p className="message message-success">{notice}</p>}
       {error && <p className="message message-error">{error}</p>}
 
@@ -152,14 +150,13 @@ export default function EditResponsePage({ slug, responseId, token }: EditRespon
             submitLabel="回答を更新"
             idPrefix="edit-response"
             busy={busy}
-            disabled={!token}
             onSubmit={handleSubmit}
           />
         )}
       </section>
 
       <div className="actions">
-        <button className="button button-danger" type="button" onClick={handleDelete} disabled={busy || !token}>
+        <button className="button button-danger" type="button" onClick={handleDelete} disabled={busy}>
           回答を削除
         </button>
         <a className="button button-secondary" href={`/p/${slug}`}>

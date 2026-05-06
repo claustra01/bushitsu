@@ -31,15 +31,14 @@ export const onRequestPost = async (context: RequestContext): Promise<Response> 
     const input = assertValidation(validateResponseCreateInput(body, slotIds));
 
     const responseId = generateResponseId();
-    const editToken = generateToken();
-    const editTokenHash = await hashToken(editToken, requireTokenPepper(context.env));
+    const internalEditTokenHash = await hashToken(generateToken(), requireTokenPepper(context.env));
     const answersJson = makeAnswersJsonString(input.answers);
 
     await context.env.DB.prepare(
       `INSERT INTO responses (id, poll_slug, name, comment, answers_json, edit_token_hash)
        VALUES (?, ?, ?, ?, json(?), ?)`
     )
-      .bind(responseId, slug, input.name, input.comment, answersJson, editTokenHash)
+      .bind(responseId, slug, input.name, input.comment, answersJson, internalEditTokenHash)
       .run();
     await touchPoll(context.env.DB, slug);
 
@@ -54,8 +53,7 @@ export const onRequestPost = async (context: RequestContext): Promise<Response> 
             updated_at: new Date().toISOString()
           },
           input.answers
-        ),
-        editPath: `/p/${slug}/edit/${responseId}?token=${encodeURIComponent(editToken)}`
+        )
       },
       201
     );

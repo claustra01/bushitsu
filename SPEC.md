@@ -222,6 +222,8 @@ CREATE UNIQUE INDEX idx_responses_edit_token_hash
 ON responses(edit_token_hash);
 ```
 
+`responses.edit_token_hash` is retained as an internal opaque random hash in this prototype schema, but client-side response editing does not require or receive an edit token.
+
 Do not create a `slots` table in the initial implementation. Slot definitions belong in `polls.config_json`.
 
 ## 8. D1 Binding
@@ -261,15 +263,15 @@ Optional:
 APP_ORIGIN
 ```
 
-`TOKEN_PEPPER` is used to hash admin and edit tokens.
+`TOKEN_PEPPER` is used to hash admin tokens and any internal token-like random values.
 
-Do not store raw admin tokens or raw edit tokens in D1.
+Do not store raw admin tokens in D1.
 
 ## 10. Token Model
 
 Each poll has an admin token.
 
-Each participant response has an edit token.
+Participant responses are editable by response ID in this prototype. This is acceptable for the intended small, trusted group use case.
 
 Public URL:
 
@@ -286,10 +288,10 @@ Admin URL:
 Edit URL:
 
 ```text
-/p/:slug/edit/:responseId?token=<raw_edit_token>
+/p/:slug/edit/:responseId
 ```
 
-Database stores only token hashes.
+Database stores only token hashes or internal opaque hashes.
 
 Hashing rule:
 
@@ -317,9 +319,6 @@ response id:
   URL-safe random id
 
 admin token:
-  high-entropy URL-safe token
-
-edit token:
   high-entropy URL-safe token
 ```
 
@@ -571,7 +570,7 @@ Response `200`:
 }
 ```
 
-Do not include admin token or edit token in this response.
+Do not include admin token or token hashes in this response.
 
 ### 14.3 Create Response
 
@@ -607,8 +606,7 @@ Response `201`:
       "d0p2": "no"
     },
     "version": 1
-  },
-  "editPath": "/p/abc123xyz0/edit/resp_abc?token=RAW_EDIT_TOKEN"
+  }
 }
 ```
 
@@ -616,12 +614,6 @@ Response `201`:
 
 ```text
 PUT /api/polls/:slug/responses/:responseId
-```
-
-Requires query parameter:
-
-```text
-?token=RAW_EDIT_TOKEN
 ```
 
 Request:
@@ -643,7 +635,6 @@ Use optimistic locking:
 ```sql
 WHERE id = ?
   AND poll_slug = ?
-  AND edit_token_hash = ?
   AND version = ?
 ```
 
@@ -666,17 +657,13 @@ Response `200`:
 
 Return `409` for version conflict.
 
-Return `403` for invalid edit token.
-
 ### 14.5 Delete Response
 
 ```text
-DELETE /api/polls/:slug/responses/:responseId?token=RAW_EDIT_TOKEN
+DELETE /api/polls/:slug/responses/:responseId
 ```
 
 Response `204`.
-
-Return `403` for invalid edit token.
 
 ### 14.6 Close Poll
 
@@ -824,7 +811,7 @@ Implement these UI pages:
   Admin page.
   Shows admin controls such as close/reopen.
 
-/p/:slug/edit/:responseId?token=...
+/p/:slug/edit/:responseId
   Edit response page.
 ```
 
@@ -848,6 +835,8 @@ The response form should allow:
 - optional comment
 - yes / maybe / no / unanswered for each slot
 ```
+
+Use one-click controls for status selection. Each cell shows ○ / △ / × buttons; clicking the selected value again clears the cell back to unanswered.
 
 Use Japanese UI labels by default:
 

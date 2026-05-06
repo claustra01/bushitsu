@@ -318,13 +318,45 @@ select {
   text-align: left;
 }
 
-.schedule-table td,
+.schedule-table td {
+  min-width: 124px;
+}
+
 .summary-table td {
   min-width: 96px;
 }
 
-.status-select {
-  min-width: 76px;
+.status-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.status-button {
+  min-width: 32px;
+  min-height: 34px;
+  padding: 4px 6px;
+  border: 1px solid #bfc8c4;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.status-button:hover:not(:disabled) {
+  border-color: var(--primary);
+}
+
+.status-button.is-selected {
+  border-color: var(--primary);
+  background: #e6f4f1;
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+.status-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .summary-cell,
@@ -338,6 +370,10 @@ select {
 .compact-counts {
   grid-template-columns: repeat(4, max-content);
   gap: 8px;
+}
+
+.table-action {
+  font-weight: 700;
 }
 
 .disabled-cell {

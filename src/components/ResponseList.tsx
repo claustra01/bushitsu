@@ -2,11 +2,12 @@ import { getEnabledSlotIds, UNANSWERED_LABEL, type PollConfig, type ResponseDto 
 import { countAnswers } from "../lib/summary";
 
 type ResponseListProps = {
+  slug: string;
   config: PollConfig;
   responses: ResponseDto[];
 };
 
-export default function ResponseList({ config, responses }: ResponseListProps) {
+export default function ResponseList({ slug, config, responses }: ResponseListProps) {
   const slotIds = getEnabledSlotIds(config);
 
   if (responses.length === 0) {
@@ -22,6 +23,7 @@ export default function ResponseList({ config, responses }: ResponseListProps) {
             <th scope="col">コメント</th>
             <th scope="col">回答数</th>
             <th scope="col">更新日時</th>
+            <th scope="col">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -40,6 +42,11 @@ export default function ResponseList({ config, responses }: ResponseListProps) {
                   </span>
                 </td>
                 <td>{response.updatedAt ?? ""}</td>
+                <td>
+                  <a className="table-action" href={`/p/${slug}/edit/${response.id}`}>
+                    編集
+                  </a>
+                </td>
               </tr>
             );
           })}

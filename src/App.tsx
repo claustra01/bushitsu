@@ -10,7 +10,7 @@ type Route =
   | { name: "new" }
   | { name: "poll"; slug: string }
   | { name: "admin"; slug: string; token: string }
-  | { name: "edit"; slug: string; responseId: string; token: string }
+  | { name: "edit"; slug: string; responseId: string }
   | { name: "notFound" };
 
 function parseRoute(location: Location): Route {
@@ -34,7 +34,7 @@ function parseRoute(location: Location): Route {
   }
 
   if (segments[0] === "p" && segments.length === 4 && segments[2] === "edit") {
-    return { name: "edit", slug: segments[1], responseId: segments[3], token };
+    return { name: "edit", slug: segments[1], responseId: segments[3] };
   }
 
   return { name: "notFound" };
@@ -73,9 +73,7 @@ export default function App() {
         {route.name === "new" && <NewPollPage />}
         {route.name === "poll" && <PollPage slug={route.slug} />}
         {route.name === "admin" && <AdminPage slug={route.slug} token={route.token} />}
-        {route.name === "edit" && (
-          <EditResponsePage slug={route.slug} responseId={route.responseId} token={route.token} />
-        )}
+        {route.name === "edit" && <EditResponsePage slug={route.slug} responseId={route.responseId} />}
         {route.name === "notFound" && (
           <section className="page-section">
             <h1>ページが見つかりません</h1>

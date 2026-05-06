@@ -21,7 +21,6 @@ export default function PollPage({ slug }: PollPageProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  const [lastEditPath, setLastEditPath] = useState("");
   const [formKey, setFormKey] = useState(0);
 
   const loadPoll = useCallback(async () => {
@@ -47,9 +46,8 @@ export default function PollPage({ slug }: PollPageProps) {
     setNotice("");
 
     try {
-      const created = await createResponse(slug, values);
-      setLastEditPath(created.editPath);
-      setNotice("回答を保存しました。編集 URL はこの画面で一度だけ表示されます。");
+      await createResponse(slug, values);
+      setNotice("回答を保存しました。");
       setFormKey((current) => current + 1);
       await loadPoll();
     } catch (caught) {
@@ -95,14 +93,6 @@ export default function PollPage({ slug }: PollPageProps) {
       {notice && <p className="message message-success">{notice}</p>}
       {error && <p className="message message-error">{error}</p>}
 
-      {lastEditPath && (
-        <section className="surface result-panel">
-          <h2>編集 URL</h2>
-          <p className="muted">あとから修正する場合に使います。</p>
-          <a href={lastEditPath}>{lastEditPath}</a>
-        </section>
-      )}
-
       <section className="surface">
         <div className="section-heading">
           <h2>集計</h2>
@@ -132,7 +122,7 @@ export default function PollPage({ slug }: PollPageProps) {
         <div className="section-heading">
           <h2>回答一覧</h2>
         </div>
-        <ResponseList config={payload.config} responses={payload.responses} />
+        <ResponseList slug={slug} config={payload.config} responses={payload.responses} />
       </section>
     </section>
   );

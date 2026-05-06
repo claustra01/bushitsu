@@ -6,13 +6,11 @@ import {
   assertValidation,
   emptyResponse,
   getParam,
-  getTokenFromQuery,
   handleApi,
   jsonResponse,
   readJsonBody
 } from "../../../../_shared/http";
 import {
-  assertEditToken,
   findResponse,
   makeAnswersJsonString,
   parsePollConfig,
@@ -31,7 +29,6 @@ export const onRequestPut = async (context: RequestContext): Promise<Response> =
 
     const response = await findResponse(context.env.DB, slug, responseId);
     assertApi(response, 404, "RESPONSE_NOT_FOUND", "指定された回答は見つかりません");
-    await assertEditToken(context.env, response, getTokenFromQuery(context.request));
 
     const config = parsePollConfig(poll.config_json);
     const slotIds = getEnabledSlotIds(config);
@@ -51,7 +48,6 @@ export const onRequestPut = async (context: RequestContext): Promise<Response> =
            updated_at = CURRENT_TIMESTAMP
        WHERE id = ?
          AND poll_slug = ?
-         AND edit_token_hash = ?
          AND version = ?`
     )
       .bind(
@@ -60,7 +56,6 @@ export const onRequestPut = async (context: RequestContext): Promise<Response> =
         makeAnswersJsonString(input.answers),
         responseId,
         slug,
-        response.edit_token_hash,
         input.version
       )
       .run();
@@ -93,15 +88,13 @@ export const onRequestDelete = async (context: RequestContext): Promise<Response
 
     const response = await findResponse(context.env.DB, slug, responseId);
     assertApi(response, 404, "RESPONSE_NOT_FOUND", "指定された回答は見つかりません");
-    await assertEditToken(context.env, response, getTokenFromQuery(context.request));
 
     await context.env.DB.prepare(
       `DELETE FROM responses
        WHERE id = ?
-         AND poll_slug = ?
-         AND edit_token_hash = ?`
+         AND poll_slug = ?`
     )
-      .bind(responseId, slug, response.edit_token_hash)
+      .bind(responseId, slug)
       .run();
     await touchPoll(context.env.DB, slug);
 
