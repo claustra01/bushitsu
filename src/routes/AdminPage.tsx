@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { ApiClientError, closePoll, getPoll, type PollReadPayload } from "../lib/api";
+import { saveRecentPoll } from "../lib/recentPolls";
 
 type AdminPageProps = {
   slug: string;
@@ -24,6 +25,7 @@ export default function AdminPage({ slug, token }: AdminPageProps) {
     try {
       const next = await getPoll(slug);
       setPayload(next);
+      saveRecentPoll(next.poll);
     } catch (caught) {
       setError(errorMessage(caught));
     }

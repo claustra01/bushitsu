@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import { ApiClientError, createPoll, type CreatePollPayload } from "../lib/api";
+import { saveRecentPoll } from "../lib/recentPolls";
 import { addDaysToIsoDate } from "../lib/schema";
 
 function localDateInputValue(date = new Date()): string {
@@ -34,6 +35,7 @@ export default function NewPollPage() {
 
     try {
       const created = await createPoll({ title, description, startDate, endDate });
+      saveRecentPoll(created.poll);
       setResult(created);
     } catch (caught) {
       setError(errorMessage(caught));

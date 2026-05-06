@@ -663,6 +663,8 @@ Response `200`:
 }
 ```
 
+After a successful update in the frontend, redirect the user back to the public poll page summary view, `/p/:slug?tab=summary`.
+
 Return `409` for version conflict.
 
 ### 14.5 Delete Response
@@ -819,7 +821,7 @@ Implement these UI pages:
 
 ```text
 /
-  Home page with link to create a poll.
+  Home page with link to create a poll and up to 10 recently accessed poll pages from localStorage.
 
 /new
   Create poll page.
@@ -837,6 +839,21 @@ Implement these UI pages:
 ```
 
 ### 18.2 UI Behavior
+
+The home page should store and display recently accessed poll pages:
+
+```text
+storage:
+  localStorage
+
+max items:
+  10
+
+stored URL:
+  public poll path only, `/p/:slug`
+```
+
+Do not store admin URLs, response edit URLs, raw tokens, or token hashes in localStorage.
 
 The public poll page should show:
 

@@ -588,6 +588,40 @@ select {
   gap: 12px;
 }
 
+.recent-section {
+  max-width: 760px;
+}
+
+.recent-list {
+  display: grid;
+  gap: 8px;
+}
+
+.recent-item {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.recent-item:hover {
+  border-color: var(--primary);
+}
+
+.recent-title {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.recent-meta {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

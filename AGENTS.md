@@ -206,6 +206,8 @@ Do not include admin token values in public poll responses.
 
 Do not include token hashes in any API response.
 
+Do not store admin URLs, response edit URLs, raw tokens, or token hashes in localStorage. Recent poll history should store public poll paths only.
+
 ## API Rules
 
 All API responses must be JSON except `204 No Content`.
@@ -283,6 +285,7 @@ Required pages:
 ```text
 /
   home
+  show up to 10 recently accessed poll pages from localStorage
 
 /new
   create poll
@@ -295,6 +298,7 @@ Required pages:
 
 /p/:slug/edit/:responseId
   edit response page
+  redirect to /p/:slug?tab=summary after successful update
 ```
 
 The timetable grid should support a selected date range up to 14 days, with 1限 through 7限 plus 夜間.

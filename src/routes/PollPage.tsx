@@ -3,6 +3,7 @@ import ResponseForm, { type ResponseFormValues } from "../components/ResponseFor
 import ResponseList from "../components/ResponseList";
 import SummaryGrid from "../components/SummaryGrid";
 import { ApiClientError, createResponse, getPoll, type PollReadPayload } from "../lib/api";
+import { saveRecentPoll } from "../lib/recentPolls";
 
 type PollPageProps = {
   slug: string;
@@ -18,13 +19,14 @@ function errorMessage(error: unknown): string {
 }
 
 export default function PollPage({ slug }: PollPageProps) {
+  const initialTab = new URLSearchParams(window.location.search).get("tab") === "summary" ? "summary" : "response";
   const [payload, setPayload] = useState<PollReadPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [formKey, setFormKey] = useState(0);
-  const [activeTab, setActiveTab] = useState<ActiveTab>("response");
+  const [activeTab, setActiveTab] = useState<ActiveTab>(initialTab);
 
   const loadPoll = useCallback(async () => {
     setLoading(true);
@@ -32,6 +34,7 @@ export default function PollPage({ slug }: PollPageProps) {
     try {
       const next = await getPoll(slug);
       setPayload(next);
+      saveRecentPoll(next.poll);
     } catch (caught) {
       setError(errorMessage(caught));
     } finally {

@@ -8,6 +8,7 @@ import {
   updateResponse,
   type PollReadPayload
 } from "../lib/api";
+import { saveRecentPoll } from "../lib/recentPolls";
 import type { ResponseDto } from "../lib/schema";
 
 type EditResponsePageProps = {
@@ -28,7 +29,6 @@ export default function EditResponsePage({ slug, responseId }: EditResponsePageP
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
 
   const loadPoll = useCallback(async () => {
     setLoading(true);
@@ -37,6 +37,7 @@ export default function EditResponsePage({ slug, responseId }: EditResponsePageP
       const next = await getPoll(slug);
       setPayload(next);
       setResponse(next.responses.find((item) => item.id === responseId) ?? null);
+      saveRecentPoll(next.poll);
     } catch (caught) {
       setError(errorMessage(caught));
     } finally {
@@ -67,15 +68,13 @@ export default function EditResponsePage({ slug, responseId }: EditResponsePageP
 
     setBusy(true);
     setError("");
-    setNotice("");
 
     try {
-      const updated = await updateResponse(slug, responseId, {
+      await updateResponse(slug, responseId, {
         ...values,
         version: response.version
       });
-      setResponse(updated.response);
-      setNotice("回答を更新しました。");
+      navigate(`/p/${slug}?tab=summary`);
     } catch (caught) {
       setError(errorMessage(caught));
     } finally {
@@ -86,7 +85,6 @@ export default function EditResponsePage({ slug, responseId }: EditResponsePageP
   const handleDelete = async () => {
     setBusy(true);
     setError("");
-    setNotice("");
 
     try {
       await deleteResponse(slug, responseId);
@@ -137,7 +135,6 @@ export default function EditResponsePage({ slug, responseId }: EditResponsePageP
         </span>
       </div>
 
-      {notice && <p className="message message-success">{notice}</p>}
       {error && <p className="message message-error">{error}</p>}
 
       <section className="surface">
