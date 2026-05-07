@@ -237,13 +237,13 @@ DB
 `wrangler.toml` should contain a D1 binding placeholder:
 
 ```toml
-name = "schedule-poll"
+name = "akikoma"
 compatibility_date = "2026-05-01"
 pages_build_output_dir = "dist"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "schedule-poll-db"
+database_name = "akikoma"
 database_id = "REPLACE_WITH_CLOUDFLARE_D1_DATABASE_ID"
 ```
 
@@ -1002,15 +1002,59 @@ If practical, add API tests later. Initial implementation may focus on build, ty
     "test": "vitest run",
     "test:watch": "vitest",
     "cf:dev": "wrangler pages dev dist --persist-to .wrangler/state",
-    "db:migrate:local": "wrangler d1 migrations apply schedule-poll-db --local",
-    "db:migrate:remote": "wrangler d1 migrations apply schedule-poll-db --remote"
+    "db:migrate:local": "wrangler d1 migrations apply akikoma --local",
+    "db:migrate:remote": "wrangler d1 migrations apply akikoma --remote"
   }
 }
 ```
 
 If the exact local Pages Functions command requires adjustment, update scripts accordingly and document the final working command.
 
-## 24. Migration Policy
+## 24. CI/CD
+
+GitHub Actions should provide:
+
+```text
+CI:
+  run on pull_request and push
+  install with pnpm
+  run pnpm run typecheck as its own job
+  run pnpm run test as its own job
+  run pnpm run build as its own job
+
+Cloudflare Pages deploy:
+  run on pushes to main and manual dispatch
+  run typecheck, test, and build before deploy
+  create the Cloudflare Pages project through the Cloudflare API if it does not already exist
+  deploy dist with wrangler pages deploy
+  read CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN from GitHub Secrets
+  read CLOUDFLARE_D1_DATABASE_ID from GitHub Secrets
+  keep wrangler.toml database_id as a placeholder in source
+
+D1 migrations:
+  run manually from GitHub Actions
+  apply remote migrations with wrangler d1 migrations apply akikoma --remote
+```
+
+Cloudflare Pages project setup should include:
+
+```text
+Pages project:
+  akikoma
+
+D1 database:
+  akikoma
+
+Pages Function bindings:
+  DB -> akikoma
+
+Pages secrets:
+  TOKEN_PEPPER
+```
+
+Keep deployment setup notes in `docs/deployment.md`.
+
+## 25. Migration Policy
 
 All database schema changes must be represented as SQL files under `migrations/`.
 
@@ -1023,7 +1067,7 @@ Use incremental migration filenames:
 0002_add_example.sql
 ```
 
-## 25. Future Extension Path
+## 26. Future Extension Path
 
 If slot-level query requirements emerge, add a derived index table:
 

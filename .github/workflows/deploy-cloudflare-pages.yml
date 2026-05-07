@@ -1,0 +1,129 @@
+name: Deploy Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-pages-production
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "24"
+  PNPM_VERSION: "10.33.0"
+  DEFAULT_PAGES_PROJECT_NAME: "akikoma"
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Test
+        run: pnpm run test
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Ensure Cloudflare Pages project exists
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+        run: |
+          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::Set CLOUDFLARE_ACCOUNT_ID in GitHub Actions secrets."
+            exit 1
+          fi
+
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::Set CLOUDFLARE_API_TOKEN in GitHub Actions secrets."
+            exit 1
+          fi
+
+          PROJECT_NAME="${CLOUDFLARE_PAGES_PROJECT_NAME:-$DEFAULT_PAGES_PROJECT_NAME}"
+          AUTH_HEADERS=(
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}"
+            -H "Content-Type: application/json"
+          )
+          PROJECT_API="https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${PROJECT_NAME}"
+
+          if curl -fsS "${AUTH_HEADERS[@]}" "$PROJECT_API" > /dev/null; then
+            echo "Cloudflare Pages project '${PROJECT_NAME}' already exists."
+          else
+            echo "Creating Cloudflare Pages project '${PROJECT_NAME}'..."
+            CREATE_API="https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects"
+            BODY=$(printf '{"name":"%s","production_branch":"main","build_config":{"build_command":"","destination_dir":"dist","root_dir":""}}' "$PROJECT_NAME")
+            RESPONSE_FILE="$(mktemp)"
+            STATUS=$(curl -sS -o "$RESPONSE_FILE" -w "%{http_code}" "${AUTH_HEADERS[@]}" -X POST "$CREATE_API" --data "$BODY" || true)
+
+            echo "Create status: ${STATUS}"
+            cat "$RESPONSE_FILE"
+
+            if [ "$STATUS" != "200" ] && [ "$STATUS" != "201" ]; then
+              echo "::error::Failed to create Cloudflare Pages project '${PROJECT_NAME}'."
+              exit 1
+            fi
+          fi
+
+      - name: Inject Cloudflare D1 database id
+        env:
+          CLOUDFLARE_D1_DATABASE_ID: ${{ secrets.CLOUDFLARE_D1_DATABASE_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_D1_DATABASE_ID" ]; then
+            echo "::error::Set CLOUDFLARE_D1_DATABASE_ID in GitHub Actions secrets."
+            exit 1
+          fi
+
+          sed -i "s/REPLACE_WITH_CLOUDFLARE_D1_DATABASE_ID/$CLOUDFLARE_D1_DATABASE_ID/g" wrangler.toml
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+        run: |
+          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::Set CLOUDFLARE_ACCOUNT_ID in GitHub Actions secrets."
+            exit 1
+          fi
+
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::Set CLOUDFLARE_API_TOKEN in GitHub Actions secrets."
+            exit 1
+          fi
+
+          PROJECT_NAME="${CLOUDFLARE_PAGES_PROJECT_NAME:-$DEFAULT_PAGES_PROJECT_NAME}"
+
+          pnpm exec wrangler pages deploy dist \
+            --project-name "$PROJECT_NAME" \
+            --branch "$GITHUB_REF_NAME" \
+            --commit-hash "$GITHUB_SHA"
