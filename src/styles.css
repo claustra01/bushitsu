@@ -85,8 +85,28 @@ textarea {
   padding: 36px 0 56px;
 }
 
+.home-section {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+}
+
 .intro {
   max-width: 720px;
+}
+
+.home-section .intro {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  width: min(520px, 100%);
+  padding: 64px 0 32px;
+  text-align: center;
+}
+
+.home-section .intro .eyebrow,
+.home-section .intro h1 {
+  margin: 0;
 }
 
 .intro h1,
@@ -589,7 +609,7 @@ select {
 }
 
 .recent-section {
-  max-width: 760px;
+  width: min(760px, 100%);
 }
 
 .recent-list {

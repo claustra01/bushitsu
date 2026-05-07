@@ -117,7 +117,7 @@ export default function EditResponsePage({ slug, responseId }: EditResponsePageP
       <section className="page-section">
         <p className="message message-error">指定された回答は見つかりません。</p>
         <a className="button button-secondary" href={`/p/${slug}`}>
-          公開ページへ
+          戻る
         </a>
       </section>
     );
@@ -127,7 +127,7 @@ export default function EditResponsePage({ slug, responseId }: EditResponsePageP
     <section className="page-section">
       <div className="section-heading split-heading">
         <div>
-          <p className="eyebrow">回答編集</p>
+          <p className="eyebrow">EDIT</p>
           <h1>{payload.poll.title}</h1>
         </div>
         <span className={`state-badge ${payload.poll.isClosed ? "state-closed" : "state-open"}`}>
@@ -144,7 +144,7 @@ export default function EditResponsePage({ slug, responseId }: EditResponsePageP
           <ResponseForm
             config={payload.config}
             initialValues={initialValues}
-            submitLabel="回答を更新"
+            submitLabel="更新"
             idPrefix="edit-response"
             busy={busy}
             onSubmit={handleSubmit}
@@ -154,10 +154,10 @@ export default function EditResponsePage({ slug, responseId }: EditResponsePageP
 
       <div className="actions">
         <button className="button button-danger" type="button" onClick={handleDelete} disabled={busy}>
-          回答を削除
+          削除
         </button>
         <a className="button button-secondary" href={`/p/${slug}`}>
-          公開ページへ
+          戻る
         </a>
       </div>
     </section>

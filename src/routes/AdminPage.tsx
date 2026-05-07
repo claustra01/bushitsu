@@ -66,7 +66,7 @@ export default function AdminPage({ slug, token }: AdminPageProps) {
     <section className="page-section">
       <div className="section-heading split-heading">
         <div>
-          <p className="eyebrow">管理ページ</p>
+          <p className="eyebrow">MODERATION</p>
           <h1>{payload?.poll.title ?? "読み込み中..."}</h1>
         </div>
         {payload && (

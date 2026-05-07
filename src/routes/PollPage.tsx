@@ -94,7 +94,7 @@ export default function PollPage({ slug }: PollPageProps) {
     <section className="page-section">
       <div className="section-heading split-heading">
         <div>
-          <p className="eyebrow">公開ページ</p>
+          <p className="eyebrow">CALENDAR</p>
           <h1>{payload.poll.title}</h1>
           {payload.poll.description && <p>{payload.poll.description}</p>}
         </div>
@@ -106,7 +106,7 @@ export default function PollPage({ slug }: PollPageProps) {
       {notice && <p className="message message-success">{notice}</p>}
       {error && <p className="message message-error">{error}</p>}
 
-      <div className="tabs" role="tablist" aria-label="公開ページの表示切り替え">
+      <div className="tabs" role="tablist" aria-label="表示">
         <button
           className={`tab-button${activeTab === "summary" ? " is-active" : ""}`}
           type="button"
@@ -116,7 +116,7 @@ export default function PollPage({ slug }: PollPageProps) {
           id="summary-tab"
           onClick={() => setActiveTab("summary")}
         >
-          集計・回答一覧
+          集計
         </button>
         <button
           className={`tab-button${activeTab === "response" ? " is-active" : ""}`}
@@ -167,7 +167,7 @@ export default function PollPage({ slug }: PollPageProps) {
             <ResponseForm
               key={formKey}
               config={payload.config}
-              submitLabel="回答を保存"
+              submitLabel="保存"
               idPrefix="new-response"
               busy={submitting}
               onSubmit={handleSubmit}

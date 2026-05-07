@@ -47,8 +47,8 @@ export default function NewPollPage() {
   return (
     <section className="page-section">
       <div className="section-heading">
-        <p className="eyebrow">新規作成</p>
-        <h1>予定調整を作成</h1>
+        <p className="eyebrow">NEW</p>
+        <h1>新規作成</h1>
       </div>
 
       <form className="surface form-stack" onSubmit={handleSubmit}>

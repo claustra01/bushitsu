@@ -84,7 +84,7 @@ export default function ResponseForm({
 
       <div className="actions">
         <button className="button button-primary" type="submit" disabled={disabled || busy}>
-          {busy ? "送信中..." : submitLabel}
+          {busy ? "送信中" : submitLabel}
         </button>
       </div>
     </form>

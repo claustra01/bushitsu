@@ -60,7 +60,7 @@ export default function App() {
     <div className="app-shell">
       <header className="topbar">
         <a className="brand" href="/">
-          予定調整
+          みんなの空きコマ
         </a>
         <nav className="topnav" aria-label="主要ナビゲーション">
           <a href="/">ホーム</a>

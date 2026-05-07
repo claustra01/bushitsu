@@ -22,8 +22,8 @@ export default function ResponseList({ slug, config, responses }: ResponseListPr
             <tr>
               <th scope="col">名前</th>
               <th scope="col">コメント</th>
-              <th scope="col">回答数</th>
-              <th scope="col">更新日時</th>
+              <th scope="col">回答状況</th>
+              <th scope="col">最終更新</th>
               <th scope="col">操作</th>
             </tr>
           </thead>
