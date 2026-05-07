@@ -1,4 +1,5 @@
 import { hashToken } from "../../src/lib/ids";
+import { isPollExpiredByCalendar } from "../../src/lib/retention";
 import {
   getEnabledSlotIds,
   makeResponseAnswersJson,
@@ -29,6 +30,11 @@ export type ResponseRow = {
   answers_json: string;
   version: number;
   updated_at: string;
+};
+
+type CleanupPollRow = {
+  slug: string;
+  config_json: string;
 };
 
 export async function findPoll(db: D1Database, slug: string): Promise<PollRow | null> {
@@ -155,6 +161,48 @@ export async function touchPoll(db: D1Database, slug: string): Promise<void> {
     )
     .bind(slug)
     .run();
+}
+
+export async function cleanupExpiredPolls(db: D1Database, now = new Date()): Promise<void> {
+  const result = await db
+    .prepare(
+      `SELECT slug, config_json
+       FROM polls`
+    )
+    .all<CleanupPollRow>();
+
+  const expiredSlugs = (result.results ?? [])
+    .filter((poll) => {
+      try {
+        return isPollExpiredByCalendar(parsePollConfig(poll.config_json), now);
+      } catch {
+        return false;
+      }
+    })
+    .map((poll) => poll.slug);
+
+  if (expiredSlugs.length === 0) {
+    return;
+  }
+
+  await db.batch([
+    ...expiredSlugs.map((slug) =>
+      db
+        .prepare(
+          `DELETE FROM responses
+           WHERE poll_slug = ?`
+        )
+        .bind(slug)
+    ),
+    ...expiredSlugs.map((slug) =>
+      db
+        .prepare(
+          `DELETE FROM polls
+           WHERE slug = ?`
+        )
+        .bind(slug)
+    )
+  ]);
 }
 
 export async function assertAdminToken(env: Env, poll: Pick<PollRow, "admin_token_hash">, rawToken: string): Promise<void> {

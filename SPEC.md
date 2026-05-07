@@ -1054,7 +1054,28 @@ Pages secrets:
 
 Keep deployment setup notes in `docs/deployment.md`.
 
-## 25. Migration Policy
+## 25. Data Retention
+
+Old poll records should be cleaned up opportunistically when creating a new poll.
+
+```text
+retention window:
+  14 days since the last calendar date in polls.config_json grid.days
+
+cleanup timing:
+  poll creation
+
+cleanup behavior:
+  parse polls.config_json
+  use the latest valid grid.days[].date as the poll calendar end date
+  delete responses for expired polls first
+  delete expired polls
+```
+
+A poll expires when its calendar end date is at least 14 days before the current date in the poll timezone.
+Read-only access and response edits do not extend this calendar-based retention window.
+
+## 26. Migration Policy
 
 All database schema changes must be represented as SQL files under `migrations/`.
 
@@ -1067,7 +1088,7 @@ Use incremental migration filenames:
 0002_add_example.sql
 ```
 
-## 26. Future Extension Path
+## 27. Future Extension Path
 
 If slot-level query requirements emerge, add a derived index table:
 

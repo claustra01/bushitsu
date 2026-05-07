@@ -2,13 +2,15 @@ import { generatePollSlug, generateToken, hashToken } from "../../../src/lib/ids
 import { createDefaultPollConfig } from "../../../src/lib/schema";
 import { LIMITS, validatePollCreateInput, validatePollConfig } from "../../../src/lib/validation";
 import { assertValidation, handleApi, jsonResponse, readJsonBody, requireTokenPepper } from "../../_shared/http";
-import { toPollDto } from "../../_shared/store";
+import { cleanupExpiredPolls, toPollDto } from "../../_shared/store";
 import type { RequestContext } from "../../_shared/types";
 
 export const onRequestPost = async (context: RequestContext): Promise<Response> =>
   handleApi(async () => {
     const body = await readJsonBody(context.request, LIMITS.requestBodyBytes);
     const input = assertValidation(validatePollCreateInput(body));
+    await cleanupExpiredPolls(context.env.DB);
+
     const config = createDefaultPollConfig({
       timezone: input.timezone,
       startDate: input.startDate,
