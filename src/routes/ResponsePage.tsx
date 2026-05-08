@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { navigate } from "../App";
+import LoadingSpinner from "../components/LoadingSpinner";
 import ResponseForm, { type ResponseFormValues } from "../components/ResponseForm";
 import { ApiClientError, createResponse, getPoll, type PollReadPayload } from "../lib/api";
 import { saveRecentPoll } from "../lib/recentPolls";
@@ -54,11 +55,7 @@ export default function ResponsePage({ slug }: ResponsePageProps) {
   };
 
   if (loading && payload === null) {
-    return (
-      <section className="page-section">
-        <p className="muted">読み込み中...</p>
-      </section>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error && payload === null) {

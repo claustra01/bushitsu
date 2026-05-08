@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import LoadingSpinner from "../components/LoadingSpinner";
 import ResponseForm, { type ResponseFormValues } from "../components/ResponseForm";
 import { navigate } from "../App";
 import {
@@ -101,11 +102,7 @@ export default function EditResponsePage({ slug, responseId }: EditResponsePageP
   };
 
   if (loading) {
-    return (
-      <section className="page-section">
-        <p className="muted">読み込み中...</p>
-      </section>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error && !payload) {

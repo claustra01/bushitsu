@@ -423,6 +423,44 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper {
   color: var(--muted);
 }
 
+.loading-view {
+  display: grid;
+  min-height: calc(100vh - 88px);
+  place-items: center;
+}
+
+.loading-spinner {
+  display: grid;
+  place-items: center;
+}
+
+.loading-spinner-icon {
+  width: 56px;
+  height: 56px;
+  animation: loading-spin 900ms linear infinite;
+}
+
+.loading-spinner-track,
+.loading-spinner-head {
+  fill: none;
+  stroke-width: 4;
+}
+
+.loading-spinner-track {
+  stroke: var(--panel);
+}
+
+.loading-spinner-head {
+  stroke: var(--panel-muted);
+  stroke-linecap: round;
+}
+
+@keyframes loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .state-badge {
   display: inline-flex;
   align-items: center;

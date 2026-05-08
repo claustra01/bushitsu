@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import LoadingSpinner from "../components/LoadingSpinner";
 import ResponseList from "../components/ResponseList";
 import SummaryGrid from "../components/SummaryGrid";
 import { ApiClientError, getPoll, type PollReadPayload } from "../lib/api";
@@ -39,11 +40,7 @@ export default function PollPage({ slug }: PollPageProps) {
   }, [loadPoll]);
 
   if (loading && payload === null) {
-    return (
-      <section className="page-section">
-        <p className="muted">読み込み中...</p>
-      </section>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error && payload === null) {

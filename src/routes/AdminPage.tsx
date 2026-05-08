@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { navigate } from "../App";
+import LoadingSpinner from "../components/LoadingSpinner";
 import { ApiClientError, closePoll, deletePoll, getPoll, type PollReadPayload } from "../lib/api";
 import { removeRecentPoll, saveRecentPoll } from "../lib/recentPolls";
 
@@ -17,11 +18,13 @@ function errorMessage(error: unknown): string {
 
 export default function AdminPage({ slug, token }: AdminPageProps) {
   const [payload, setPayload] = useState<PollReadPayload | null>(null);
+  const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
   const loadPoll = useCallback(async () => {
+    setLoading(true);
     setError("");
     try {
       const next = await getPoll(slug);
@@ -29,6 +32,8 @@ export default function AdminPage({ slug, token }: AdminPageProps) {
       saveRecentPoll(next.poll);
     } catch (caught) {
       setError(errorMessage(caught));
+    } finally {
+      setLoading(false);
     }
   }, [slug]);
 
@@ -82,6 +87,18 @@ export default function AdminPage({ slug, token }: AdminPageProps) {
       setBusy(false);
     }
   };
+
+  if (loading && payload === null) {
+    return <LoadingSpinner />;
+  }
+
+  if (error && payload === null) {
+    return (
+      <section className="page-section">
+        <p className="message message-error">{error}</p>
+      </section>
+    );
+  }
 
   return (
     <section className="page-section">
