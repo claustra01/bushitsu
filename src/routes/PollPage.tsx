@@ -19,7 +19,8 @@ function errorMessage(error: unknown): string {
 }
 
 export default function PollPage({ slug }: PollPageProps) {
-  const initialTab = new URLSearchParams(window.location.search).get("tab") === "summary" ? "summary" : "response";
+  const initialTab: ActiveTab =
+    new URLSearchParams(window.location.search).get("tab") === "response" ? "response" : "summary";
   const [payload, setPayload] = useState<PollReadPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -128,7 +129,7 @@ export default function PollPage({ slug }: PollPageProps) {
           onClick={() => setActiveTab("response")}
           disabled={payload.poll.isClosed}
         >
-          回答する
+          回答
         </button>
       </div>
 
@@ -143,6 +144,18 @@ export default function PollPage({ slug }: PollPageProps) {
             <h2>集計</h2>
           </div>
           <SummaryGrid config={payload.config} summary={payload.summary} />
+          {!payload.poll.isClosed && (
+            <div className="actions summary-actions">
+              <button
+                className="button button-primary"
+                type="button"
+                aria-controls="response-tab-panel"
+                onClick={() => setActiveTab("response")}
+              >
+                回答する
+              </button>
+            </div>
+          )}
 
           <div className="section-heading section-heading-nested">
             <h2>回答一覧</h2>
