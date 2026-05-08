@@ -233,6 +233,7 @@ main {
 
 .surface {
   margin-top: 20px;
+  margin-bottom: 20px;
   padding: 22px;
   border: 2px solid var(--line);
   border-radius: var(--radius-md);
@@ -867,6 +868,7 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper {
 
   .surface {
     margin-top: 16px;
+    margin-bottom: 16px;
     padding: 12px;
     border-radius: var(--radius-sm);
   }
