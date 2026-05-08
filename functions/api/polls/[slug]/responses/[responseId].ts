@@ -84,7 +84,8 @@ export const onRequestDelete = async (context: RequestContext): Promise<Response
   handleApi(async () => {
     const slug = getParam(context, "slug");
     const responseId = getParam(context, "responseId");
-    await requirePoll(context.env.DB, slug);
+    const poll = await requirePoll(context.env.DB, slug);
+    assertApi(poll.is_closed !== 1, 403, "POLL_CLOSED", "この予定は締め切られています");
 
     const response = await findResponse(context.env.DB, slug, responseId);
     assertApi(response, 404, "RESPONSE_NOT_FOUND", "指定された回答は見つかりません");

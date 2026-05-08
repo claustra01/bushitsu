@@ -83,6 +83,10 @@ export default function EditResponsePage({ slug, responseId }: EditResponsePageP
   };
 
   const handleDelete = async () => {
+    if (payload?.poll.isClosed) {
+      return;
+    }
+
     setBusy(true);
     setError("");
 
@@ -153,7 +157,12 @@ export default function EditResponsePage({ slug, responseId }: EditResponsePageP
       </section>
 
       <div className="actions">
-        <button className="button button-danger" type="button" onClick={handleDelete} disabled={busy}>
+        <button
+          className="button button-danger"
+          type="button"
+          onClick={handleDelete}
+          disabled={busy || payload.poll.isClosed}
+        >
           削除
         </button>
         <a className="button button-secondary" href={`/p/${slug}`}>

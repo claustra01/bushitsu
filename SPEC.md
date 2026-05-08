@@ -722,7 +722,7 @@ Response `200`:
 }
 ```
 
-Closed polls must reject response creation and response update with `403`.
+Closed polls must reject response creation, response update, and response deletion with `403`.
 
 ## 15. HTTP Status Codes
 

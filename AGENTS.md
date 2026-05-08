@@ -266,7 +266,7 @@ Critical checks:
 - JSON object shape only
 - max request body size
 - max string lengths
-- closed poll rejects response creation/update
+- closed poll rejects response creation/update/delete
 ```
 
 Reject malformed input with `400`.
