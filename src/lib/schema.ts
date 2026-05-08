@@ -64,6 +64,10 @@ export const DEFAULT_STATUS_LABELS: StatusLabels = {
 };
 
 export const UNANSWERED_LABEL = "未回答";
+export const PERIOD_MIN = 0;
+export const PERIOD_MAX = 9;
+export const DEFAULT_START_PERIOD = 1;
+export const DEFAULT_END_PERIOD = 7;
 
 const WEEKDAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"] as const;
 
@@ -78,6 +82,11 @@ export function isValidStatus(value: unknown): value is Status {
 export type DateRange = {
   startDate: string;
   endDate: string;
+};
+
+export type PeriodRange = {
+  startPeriod: number;
+  endPeriod: number;
 };
 
 export function parseIsoDateParts(value: string): { year: number; month: number; day: number } | null {
@@ -146,6 +155,24 @@ export function formatDateLabel(value: string): string {
   return `${parts.month}/${parts.day}(${weekday})`;
 }
 
+export function getInclusivePeriodRange(startPeriod: number, endPeriod: number): number[] {
+  if (
+    !Number.isInteger(startPeriod) ||
+    !Number.isInteger(endPeriod) ||
+    startPeriod < PERIOD_MIN ||
+    endPeriod > PERIOD_MAX ||
+    endPeriod < startPeriod
+  ) {
+    return [];
+  }
+
+  return Array.from({ length: endPeriod - startPeriod + 1 }, (_, index) => startPeriod + index);
+}
+
+export function formatPeriodLabel(period: number): string {
+  return `${period}限`;
+}
+
 export function createDefaultDateRange(today = isoDateFromUtcDate(new Date())): DateRange {
   return {
     startDate: today,
@@ -157,6 +184,8 @@ export function createDefaultPollConfig(options: {
   timezone?: string;
   startDate: string;
   endDate: string;
+  startPeriod?: number;
+  endPeriod?: number;
 }): PollConfig {
   const dates = getInclusiveDateRange(options.startDate, options.endDate);
   const days: DayDefinition[] = dates.map((date, index) => ({
@@ -165,16 +194,14 @@ export function createDefaultPollConfig(options: {
     date
   }));
 
-  const periods: PeriodDefinition[] = [
-    ...Array.from({ length: 7 }, (_, index) => ({
-      id: `p${index}`,
-      label: `${index + 1}限`
-    })),
-    {
-      id: "p7",
-      label: "夜間"
-    }
-  ];
+  const periodNumbers = getInclusivePeriodRange(
+    options.startPeriod ?? DEFAULT_START_PERIOD,
+    options.endPeriod ?? DEFAULT_END_PERIOD
+  );
+  const periods: PeriodDefinition[] = periodNumbers.map((period) => ({
+    id: `p${period}`,
+    label: formatPeriodLabel(period)
+  }));
 
   const slots: SlotDefinition[] = days.flatMap((day) =>
     periods.map((period) => ({

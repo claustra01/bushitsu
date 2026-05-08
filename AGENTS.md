@@ -301,7 +301,7 @@ Required pages:
   redirect to /p/:slug?tab=summary after successful update
 ```
 
-The timetable grid should support a selected date range up to 14 days, with 1限 through 7限 plus 夜間.
+The timetable grid should support a selected date range up to 14 days and a selected period range from 0限 through 9限.
 
 The desktop-style grid may scroll horizontally on narrow intermediate viewports.
 

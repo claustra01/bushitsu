@@ -72,13 +72,17 @@ describe("poll creation validation", () => {
       title: "来週の予定",
       description: "",
       startDate: "2026-05-07",
-      endDate: "2026-05-10"
+      endDate: "2026-05-10",
+      startPeriod: 0,
+      endPeriod: 9
     });
 
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.value.startDate).toBe("2026-05-07");
       expect(result.value.endDate).toBe("2026-05-10");
+      expect(result.value.startPeriod).toBe(0);
+      expect(result.value.endPeriod).toBe(9);
     }
   });
 
@@ -101,20 +105,61 @@ describe("poll creation validation", () => {
 
     expect(result.ok).toBe(false);
   });
+
+  it("rejects an end period before the start period", () => {
+    const result = validatePollCreateInput({
+      title: "来週の予定",
+      startDate: "2026-05-07",
+      endDate: "2026-05-10",
+      startPeriod: 7,
+      endPeriod: 6
+    });
+
+    expect(result.ok).toBe(false);
+  });
+
+  it("rejects periods outside zero through nine", () => {
+    const result = validatePollCreateInput({
+      title: "来週の予定",
+      startDate: "2026-05-07",
+      endDate: "2026-05-10",
+      startPeriod: -1,
+      endPeriod: 9
+    });
+
+    expect(result.ok).toBe(false);
+  });
 });
 
 describe("poll config generation", () => {
-  it("uses selected dates and adds the night period", () => {
+  it("uses selected dates and selected periods without a night period", () => {
     const config = createDefaultPollConfig({
       startDate: "2026-05-07",
-      endDate: "2026-05-08"
+      endDate: "2026-05-08",
+      startPeriod: 0,
+      endPeriod: 2
     });
 
     expect(config.grid.days).toEqual([
       { id: "d0", label: "5/7(木)", date: "2026-05-07" },
       { id: "d1", label: "5/8(金)", date: "2026-05-08" }
     ]);
-    expect(config.grid.periods.at(-1)).toEqual({ id: "p7", label: "夜間" });
-    expect(config.grid.slots).toHaveLength(16);
+    expect(config.grid.periods).toEqual([
+      { id: "p0", label: "0限" },
+      { id: "p1", label: "1限" },
+      { id: "p2", label: "2限" }
+    ]);
+    expect(config.grid.slots).toHaveLength(6);
+  });
+
+  it("defaults to first through seventh period", () => {
+    const config = createDefaultPollConfig({
+      startDate: "2026-05-07",
+      endDate: "2026-05-07"
+    });
+
+    expect(config.grid.periods.at(0)).toEqual({ id: "p1", label: "1限" });
+    expect(config.grid.periods.at(-1)).toEqual({ id: "p7", label: "7限" });
+    expect(config.grid.slots).toHaveLength(7);
   });
 });

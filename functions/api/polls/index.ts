@@ -14,7 +14,9 @@ export const onRequestPost = async (context: RequestContext): Promise<Response> 
     const config = createDefaultPollConfig({
       timezone: input.timezone,
       startDate: input.startDate,
-      endDate: input.endDate
+      endDate: input.endDate,
+      startPeriod: input.startPeriod,
+      endPeriod: input.endPeriod
     });
     assertValidation(validatePollConfig(config));
 

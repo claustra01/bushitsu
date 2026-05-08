@@ -1,7 +1,14 @@
 import { FormEvent, useState } from "react";
 import { ApiClientError, createPoll, type CreatePollPayload } from "../lib/api";
 import { saveRecentPoll } from "../lib/recentPolls";
-import { addDaysToIsoDate } from "../lib/schema";
+import {
+  DEFAULT_END_PERIOD,
+  DEFAULT_START_PERIOD,
+  PERIOD_MAX,
+  PERIOD_MIN,
+  addDaysToIsoDate,
+  formatPeriodLabel
+} from "../lib/schema";
 
 function localDateInputValue(date = new Date()): string {
   const year = date.getFullYear();
@@ -19,10 +26,13 @@ function errorMessage(error: unknown): string {
 
 export default function NewPollPage() {
   const today = localDateInputValue();
+  const periodOptions = Array.from({ length: PERIOD_MAX - PERIOD_MIN + 1 }, (_, index) => PERIOD_MIN + index);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState(today);
   const [endDate, setEndDate] = useState(() => addDaysToIsoDate(today, 6));
+  const [startPeriod, setStartPeriod] = useState(DEFAULT_START_PERIOD);
+  const [endPeriod, setEndPeriod] = useState(DEFAULT_END_PERIOD);
   const maxEndDate = startDate ? addDaysToIsoDate(startDate, 13) : "";
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -34,7 +44,7 @@ export default function NewPollPage() {
     setError("");
 
     try {
-      const created = await createPoll({ title, description, startDate, endDate });
+      const created = await createPoll({ title, description, startDate, endDate, startPeriod, endPeriod });
       saveRecentPoll(created.poll);
       setResult(created);
     } catch (caught) {
@@ -101,6 +111,46 @@ export default function NewPollPage() {
               required
               disabled={busy}
             />
+          </div>
+        </div>
+
+        <div className="form-grid">
+          <div className="form-row">
+            <label htmlFor="poll-start-period">開始時限</label>
+            <select
+              id="poll-start-period"
+              value={startPeriod}
+              onChange={(event) => {
+                const nextStartPeriod = Number(event.currentTarget.value);
+                setStartPeriod(nextStartPeriod);
+                if (endPeriod < nextStartPeriod) {
+                  setEndPeriod(nextStartPeriod);
+                }
+              }}
+              disabled={busy}
+            >
+              {periodOptions.map((period) => (
+                <option key={period} value={period}>
+                  {formatPeriodLabel(period)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-row">
+            <label htmlFor="poll-end-period">終了時限</label>
+            <select
+              id="poll-end-period"
+              value={endPeriod}
+              onChange={(event) => setEndPeriod(Number(event.currentTarget.value))}
+              disabled={busy}
+            >
+              {periodOptions.map((period) => (
+                <option key={period} value={period} disabled={period < startPeriod}>
+                  {formatPeriodLabel(period)}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

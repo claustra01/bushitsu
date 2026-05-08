@@ -1,7 +1,12 @@
 import {
   DEFAULT_STATUS_LABELS,
+  DEFAULT_END_PERIOD,
+  DEFAULT_START_PERIOD,
+  PERIOD_MAX,
+  PERIOD_MIN,
   addDaysToIsoDate,
   getInclusiveDateRange,
+  getInclusivePeriodRange,
   parseIsoDateParts,
   type AnswersMap,
   type PollConfig,
@@ -19,8 +24,8 @@ export const LIMITS = {
   commentMax: 500,
   answersJsonMax: 16 * 1024,
   daysMax: 14,
-  periodsMax: 12,
-  enabledSlotsMax: 168,
+  periodsMax: 10,
+  enabledSlotsMax: 140,
   timezoneMax: 64
 } as const;
 
@@ -40,6 +45,8 @@ export type PollCreateInput = {
   timezone: string;
   startDate: string;
   endDate: string;
+  startPeriod: number;
+  endPeriod: number;
 };
 
 export type ResponseCreateInput = {
@@ -159,6 +166,46 @@ function validateDateRange(
   return valid({ startDate, endDate });
 }
 
+function cleanPeriodValue(value: unknown, field: string): ValidationResult<number> {
+  const numberValue = typeof value === "string" && value.trim() !== "" ? Number(value) : value;
+
+  if (typeof numberValue !== "number" || !Number.isInteger(numberValue)) {
+    return invalid(`${field} は ${PERIOD_MIN} から ${PERIOD_MAX} の整数で入力してください`);
+  }
+
+  if (numberValue < PERIOD_MIN || numberValue > PERIOD_MAX) {
+    return invalid(`${field} は ${PERIOD_MIN} から ${PERIOD_MAX} の範囲で入力してください`);
+  }
+
+  return valid(numberValue);
+}
+
+function validatePeriodRange(
+  startPeriodValue: unknown,
+  endPeriodValue: unknown
+): ValidationResult<{ startPeriod: number; endPeriod: number }> {
+  const startPeriod = cleanPeriodValue(startPeriodValue ?? DEFAULT_START_PERIOD, "開始時限");
+  if (!startPeriod.ok) {
+    return startPeriod;
+  }
+
+  const endPeriod = cleanPeriodValue(endPeriodValue ?? DEFAULT_END_PERIOD, "終了時限");
+  if (!endPeriod.ok) {
+    return endPeriod;
+  }
+
+  const periods = getInclusivePeriodRange(startPeriod.value, endPeriod.value);
+  if (periods.length === 0) {
+    return invalid("終了時限は開始時限以降にしてください");
+  }
+
+  if (periods.length > LIMITS.periodsMax) {
+    return invalid(`時限範囲は ${LIMITS.periodsMax} 件以内にしてください`);
+  }
+
+  return valid({ startPeriod: startPeriod.value, endPeriod: endPeriod.value });
+}
+
 export function validatePollCreateInput(input: unknown): ValidationResult<PollCreateInput> {
   if (!isRecord(input)) {
     return invalid("リクエスト本文は JSON オブジェクトにしてください");
@@ -189,12 +236,19 @@ export function validatePollCreateInput(input: unknown): ValidationResult<PollCr
     return dateRange;
   }
 
+  const periodRange = validatePeriodRange(input.startPeriod, input.endPeriod);
+  if (!periodRange.ok) {
+    return periodRange;
+  }
+
   return valid({
     title: title.value,
     description: description.value,
     timezone,
     startDate: dateRange.value.startDate,
-    endDate: dateRange.value.endDate
+    endDate: dateRange.value.endDate,
+    startPeriod: periodRange.value.startPeriod,
+    endPeriod: periodRange.value.endPeriod
   });
 }
 

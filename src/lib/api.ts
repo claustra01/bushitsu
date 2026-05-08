@@ -83,6 +83,8 @@ export function createPoll(input: {
   description: string;
   startDate: string;
   endDate: string;
+  startPeriod: number;
+  endPeriod: number;
 }): Promise<CreatePollPayload> {
   return requestJson<CreatePollPayload>("/api/polls", {
     method: "POST",
