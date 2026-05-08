@@ -162,7 +162,7 @@ export default function PollPage({ slug }: PollPageProps) {
             <h2>回答する</h2>
           </div>
           {payload.poll.isClosed ? (
-            <p className="message message-warning">この予定調整は締め切られています。</p>
+            <p className="message message-warning">この予定は締め切られています。</p>
           ) : (
             <ResponseForm
               key={formKey}

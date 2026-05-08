@@ -50,7 +50,7 @@ export async function findPoll(db: D1Database, slug: string): Promise<PollRow | 
 
 export async function requirePoll(db: D1Database, slug: string): Promise<PollRow> {
   const poll = await findPoll(db, slug);
-  assertApi(poll, 404, "POLL_NOT_FOUND", "指定された予定調整は見つかりません");
+  assertApi(poll, 404, "POLL_NOT_FOUND", "指定された予定は見つかりません");
   return poll;
 }
 

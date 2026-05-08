@@ -139,7 +139,7 @@ export default function EditResponsePage({ slug, responseId }: EditResponsePageP
 
       <section className="surface">
         {payload.poll.isClosed ? (
-          <p className="message message-warning">この予定調整は締め切られているため、回答を更新できません。</p>
+          <p className="message message-warning">この予定は締め切られているため、回答を更新できません。</p>
         ) : (
           <ResponseForm
             config={payload.config}

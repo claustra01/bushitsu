@@ -23,7 +23,7 @@ export const onRequestPost = async (context: RequestContext): Promise<Response> 
   handleApi(async () => {
     const slug = getParam(context, "slug");
     const poll = await requirePoll(context.env.DB, slug);
-    assertApi(poll.is_closed !== 1, 403, "POLL_CLOSED", "この予定調整は締め切られています");
+    assertApi(poll.is_closed !== 1, 403, "POLL_CLOSED", "この予定は締め切られています");
 
     const config = parsePollConfig(poll.config_json);
     const slotIds = getEnabledSlotIds(config);
