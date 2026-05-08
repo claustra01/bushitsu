@@ -75,3 +75,15 @@ export function saveRecentPoll(
 
   return nextItems;
 }
+
+export function removeRecentPoll(slug: string, storage: StorageLike = window.localStorage): RecentPoll[] {
+  const nextItems = readRecentPolls(storage).filter((item) => item.slug !== slug);
+
+  try {
+    storage.setItem(RECENT_POLLS_KEY, JSON.stringify(nextItems));
+  } catch {
+    return nextItems;
+  }
+
+  return nextItems;
+}

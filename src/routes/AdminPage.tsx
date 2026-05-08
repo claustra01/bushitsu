@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { ApiClientError, closePoll, getPoll, type PollReadPayload } from "../lib/api";
-import { saveRecentPoll } from "../lib/recentPolls";
+import { navigate } from "../App";
+import { ApiClientError, closePoll, deletePoll, getPoll, type PollReadPayload } from "../lib/api";
+import { removeRecentPoll, saveRecentPoll } from "../lib/recentPolls";
 
 type AdminPageProps = {
   slug: string;
@@ -62,6 +63,26 @@ export default function AdminPage({ slug, token }: AdminPageProps) {
     }
   };
 
+  const handleDelete = async () => {
+    if (!payload || !window.confirm("この予定調整を削除します。回答もすべて削除されます。")) {
+      return;
+    }
+
+    setBusy(true);
+    setError("");
+    setNotice("");
+
+    try {
+      await deletePoll(slug, token);
+      removeRecentPoll(slug);
+      navigate("/");
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <section className="page-section">
       <div className="section-heading split-heading">
@@ -98,6 +119,9 @@ export default function AdminPage({ slug, token }: AdminPageProps) {
           <div className="actions">
             <button className="button button-primary" type="button" onClick={handleToggle} disabled={busy || !token}>
               {payload.poll.isClosed ? "回答受付を再開" : "回答受付を締め切る"}
+            </button>
+            <button className="button button-danger" type="button" onClick={handleDelete} disabled={busy || !token}>
+              予定を削除
             </button>
           </div>
         </section>

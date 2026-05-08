@@ -685,7 +685,19 @@ DELETE /api/polls/:slug/responses/:responseId
 
 Response `204`.
 
-### 14.6 Close Poll
+### 14.6 Delete Poll
+
+```text
+DELETE /api/polls/:slug?token=RAW_ADMIN_TOKEN
+```
+
+Deletes the poll and all responses.
+
+Response `204`.
+
+Return `403` for an invalid admin token.
+
+### 14.7 Close Poll
 
 ```text
 POST /api/polls/:slug/close?token=RAW_ADMIN_TOKEN
@@ -842,7 +854,7 @@ Implement these UI pages:
 
 /p/:slug/admin?token=...
   Admin page.
-  Shows admin controls such as close/reopen.
+  Shows admin controls such as close/reopen and poll deletion.
 
 /p/:slug/edit/:responseId
   Edit response page.
@@ -941,7 +953,6 @@ Optional later:
 ```text
 - Cloudflare Turnstile for spam prevention
 - IP-based rate limiting
-- admin poll deletion
 ```
 
 ## 20. Request Body Limits

@@ -129,6 +129,13 @@ export function deleteResponse(slug: string, responseId: string): Promise<void> 
   );
 }
 
+export function deletePoll(slug: string, token: string): Promise<void> {
+  const params = new URLSearchParams({ token });
+  return requestJson<void>(`/api/polls/${encodeURIComponent(slug)}?${params.toString()}`, {
+    method: "DELETE"
+  });
+}
+
 export function closePoll(slug: string, token: string, isClosed: boolean): Promise<{ poll: PollDto }> {
   const params = new URLSearchParams({ token });
   return requestJson<{ poll: PollDto }>(`/api/polls/${encodeURIComponent(slug)}/close?${params.toString()}`, {

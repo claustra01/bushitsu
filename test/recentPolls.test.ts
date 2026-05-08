@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readRecentPolls, saveRecentPoll } from "../src/lib/recentPolls";
+import { readRecentPolls, removeRecentPoll, saveRecentPoll } from "../src/lib/recentPolls";
 
 class MemoryStorage {
   private values = new Map<string, string>();
@@ -96,5 +96,31 @@ describe("recent polls", () => {
     expect(recent).toHaveLength(10);
     expect(recent[0]?.slug).toBe("poll-11");
     expect(recent.at(-1)?.slug).toBe("poll-2");
+  });
+
+  it("removes a deleted poll", () => {
+    const storage = new MemoryStorage();
+
+    saveRecentPoll(
+      {
+        slug: "keep",
+        title: "残す予定",
+        description: null,
+        isClosed: false
+      },
+      storage
+    );
+    saveRecentPoll(
+      {
+        slug: "delete",
+        title: "消す予定",
+        description: null,
+        isClosed: false
+      },
+      storage
+    );
+
+    expect(removeRecentPoll("delete", storage).map((item) => item.slug)).toEqual(["keep"]);
+    expect(readRecentPolls(storage).map((item) => item.slug)).toEqual(["keep"]);
   });
 });

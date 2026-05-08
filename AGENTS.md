@@ -237,6 +237,7 @@ Required API endpoints:
 ```text
 POST   /api/polls
 GET    /api/polls/:slug
+DELETE /api/polls/:slug
 POST   /api/polls/:slug/responses
 PUT    /api/polls/:slug/responses/:responseId
 DELETE /api/polls/:slug/responses/:responseId
